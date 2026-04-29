@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AWS Serverless Feedback App</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      margin-top: 50px;
+    }
+    input {
+      padding: 10px;
+      margin: 5px;
+      width: 250px;
+    }
+    button {
+      padding: 10px 20px;
+      background: blue;
+      color: white;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Student Feedback App</h2>
+
+  <input id="name" placeholder="Enter your name"><br>
+  <input id="msg" placeholder="Enter your feedback"><br>
+
+  <button onclick="sendData()">Submit</button>
+
+  <script>
+    async function sendData() {
+      const name = document.getElementById("name").value;
+      const msg = document.getElementById("msg").value;
+
+      if (!name || !msg) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      await fetch("YOUR_API_URL", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, msg })
+      });
+
+      alert("Feedback submitted!");
+    }
+  </script>
+
+</body>
+</html>
