@@ -51,6 +51,26 @@
       alert("Feedback submitted!");
     }
   </script>
+  <h3>All Feedback</h3>
+<ul id="list"></ul>
+
+<script>
+async function loadData() {
+  const res = await fetch("https://evwsvbajn3.execute-api.ap-south-1.amazonaws.com/prod_aws_serverless/get");
+  const data = await res.json();
+
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  data.forEach(item => {
+    const li = document.createElement("li");
+    li.innerText = item.name.S + " : " + item.message.S;
+    list.appendChild(li);
+  });
+}
+
+loadData();
+</script>
 
 </body>
 </html>
