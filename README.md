@@ -37,17 +37,29 @@ All operations are handled through AWS-managed services.
 ### 📊 Flow Explanation
 
 User (Browser)
+<br>
       ↓
+      <br>
 CloudFront (HTTPS + CDN)
+<br>
       ↓
+      <br>
 S3 (Frontend Hosting)
+<br>
       ↓
+      <br>
 API Gateway (REST API)
+<br>
       ↓
+      <br>
 Lambda (Backend Logic)
+<br>
       ↓
+      <br>
 DynamoDB (Database)
+<br>
       ↓
+      <br>
 Response back to User
 
 Step-by-step:
