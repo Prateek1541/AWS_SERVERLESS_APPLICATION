@@ -1,18 +1,22 @@
-import { DynamoDBClient, ScanCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, ScanCommand, PutItemCommand, DeleteItemCommand } from "@aws-sdk/client-dynamodb";
 
 const client = new DynamoDBClient({});
 
 export const handler = async (event) => {
     try {
-        if (event.requestContext.http.method === "POST") {
+        const method = event.requestContext.http.method;
+
+        // ➤ CREATE (POST)
+        if (method === "POST") {
             const body = JSON.parse(event.body);
 
             await client.send(new PutItemCommand({
                 TableName: "feedback",
                 Item: {
-                    id: { S: Date.now().toString() },
+                    id: { S: Date.now().toString() + "-" + Math.random().toString(36).substring(2) },
                     name: { S: body.name },
-                    message: { S: body.msg }
+                    message: { S: body.msg },
+                    timestamp: { S: new Date().toISOString() }
                 }
             }));
 
@@ -23,7 +27,8 @@ export const handler = async (event) => {
             };
         }
 
-        if (event.requestContext.http.method === "GET") {
+        // ➤ READ (GET)
+        if (method === "GET") {
             const data = await client.send(new ScanCommand({
                 TableName: "feedback"
             }));
@@ -32,6 +37,24 @@ export const handler = async (event) => {
                 statusCode: 200,
                 headers: { "Access-Control-Allow-Origin": "*" },
                 body: JSON.stringify(data.Items)
+            };
+        }
+
+        // ➤ DELETE
+        if (method === "DELETE") {
+            const body = JSON.parse(event.body);
+
+            await client.send(new DeleteItemCommand({
+                TableName: "feedback",
+                Key: {
+                    id: { S: body.id }
+                }
+            }));
+
+            return {
+                statusCode: 200,
+                headers: { "Access-Control-Allow-Origin": "*" },
+                body: JSON.stringify({ message: "Deleted" })
             };
         }
 
