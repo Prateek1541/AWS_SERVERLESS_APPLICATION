@@ -1,75 +1,134 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AWS Serverless Feedback App</title>
+    <meta charset="UTF-8">
+  <title>AWS Feedback App</title>
+
   <style>
     body {
       font-family: Arial;
+      background: #f4f6f9;
       text-align: center;
-      margin-top: 50px;
     }
+
+    .card {
+      background: white;
+      padding: 20px;
+      width: 400px;
+      margin: 50px auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
     input {
+      width: 90%;
       padding: 10px;
-      margin: 5px;
-      width: 250px;
+      margin: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
+
     button {
-      padding: 10px 20px;
-      background: blue;
+      padding: 8px 15px;
+      margin: 5px;
+      background: #007bff;
       color: white;
       border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .delete-btn {
+      background: red;
+    }
+
+    ul {
+      text-align: left;
+      margin-top: 20px;
     }
   </style>
 </head>
+
 <body>
 
-  <h2>Student Feedback App</h2>
+<div class="card">
 
-  <input id="name" placeholder="Enter your name"><br>
-  <input id="msg" placeholder="Enter your feedback"><br>
+  <h2>Feedback App 🚀</h2>
+
+  <input id="name" placeholder="Your Name">
+  <input id="msg" placeholder="Your Feedback">
 
   <button onclick="sendData()">Submit</button>
 
-  <script>
-    async function sendData() {
-      const name = document.getElementById("name").value;
-      const msg = document.getElementById("msg").value;
+  <p id="status"></p>
 
-      if (!name || !msg) {
-        alert("Please fill all fields");
-        return;
-      }
-
-      await fetch("https://evwsvbajn3.execute-api.ap-south-1.amazonaws.com/prod_aws_serverless/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ name, msg })
-      });
-
-      alert("Feedback submitted!");
-    }
-  </script>
   <h3>All Feedback</h3>
-<ul id="list"></ul>
+  <ul id="list"></ul>
+
+</div>
 
 <script>
-async function loadData() {
-  const res = await fetch("https://evwsvbajn3.execute-api.ap-south-1.amazonaws.com/prod_aws_serverless/get");
-  const data = await res.json();
 
+const API = "https://evwsvbajn3.execute-api.ap-south-1.amazonaws.com/prod_aws_serverless"; // URL
+
+async function sendData() {
+  const name = document.getElementById("name").value;
+  const msg = document.getElementById("msg").value;
+
+  if (!name || !msg) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  document.getElementById("status").innerText = "Submitting...";
+
+  await fetch(API + "/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, msg })
+  });
+
+  document.getElementById("status").innerText = "Saved ✅";
+
+  loadData();
+}
+
+async function deleteItem(id) {
+  await fetch(API + "/delete", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id })
+  });
+
+  loadData();
+}
+
+async function loadData() {
+  const res = await fetch(API + "/get");
+  const data = await res.json();
+  console.log(data); // temp add
   const list = document.getElementById("list");
   list.innerHTML = "";
+  
+  data.reverse(); // latest first
 
   data.forEach(item => {
     const li = document.createElement("li");
-    li.innerText = item.name.S + " : " + item.message.S;
+
+    li.innerHTML = `
+      <b>${item.name.S}</b> → ${item.message.S}
+      <br><small>${item.timestamp.S}</small>
+      <br>
+      <button class="delete-btn" onclick="deleteItem('${item.id.S}')">Delete</button>
+      <hr>
+    `;
+
     list.appendChild(li);
   });
 }
 
 loadData();
+
 </script>
 
 </body>
