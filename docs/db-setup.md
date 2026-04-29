@@ -1,0 +1,1 @@
+Created DynamoDB table named 'feedback' with primary key 'id'.
